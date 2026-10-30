@@ -2,6 +2,10 @@
 const BASE = (process.env.LLM_BASE_URL || "https://generativelanguage.googleapis.com/v1beta/openai").replace(/\/+$/, "");
 const MODEL = process.env.LLM_MODEL || "gemini-3.8-flash";
 
+// Gemini 3 "thinks" before answering, which is slow. "low" keeps replies fast. Set LLM_REASONING="" to omit it for other providers.
+const REASON = process.env.LLM_REASONING ?? "low";
+const think = REASON ? { reasoning_effort: REASON } : {};
+
 const RETRYABLE = new Set([429, 500, 502, 503, 504]);
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
@@ -15,7 +19,7 @@ async function post(label: string, body: unknown): Promise<Response> {
         method: "POST",
         headers: { Authorization: `Bearer ${process.env.LLM_API_KEY}`, "Content-Type": "application/json" },
         body: JSON.stringify(body),
-        signal: AbortSignal.timeout(20_000),
+        signal: AbortSignal.timeout(40_000),
       });
       if (r.ok || !RETRYABLE.has(r.status)) return r;
       last = `${label} ${r.status}: ${await r.text()}`;
@@ -28,7 +32,7 @@ async function post(label: string, body: unknown): Promise<Response> {
 
 export async function chatJSON<T>(system: string, user: string): Promise<T> {
   const r = await post("LLM", {
-      model: MODEL, temperature: 0,
+      model: MODEL, temperature: 0, ...think,
       response_format: { type: "json_object" },
       messages: [{ role: "system", content: system }, { role: "user", content: user }],
     });
@@ -53,7 +57,7 @@ export async function embed(texts: string[]): Promise<number[][] | null> {
 /** Reads text out of a screenshot with a vision-capable model. */
 export async function visionText(dataUrl: string): Promise<string> {
   const r = await post("Vision", {
-      model: process.env.VISION_MODEL || MODEL, temperature: 0,
+      model: process.env.VISION_MODEL || MODEL, temperature: 0, ...think,
       response_format: { type: "json_object" },
       messages: [{ role: "user", content: [
         { type: "text", text: 'Transcribe all text in this screenshot of a job, internship or certificate message exactly as written. Reply as JSON: {"text":string}' },
