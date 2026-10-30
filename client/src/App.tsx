@@ -15,10 +15,17 @@ const LBL = { high: "High risk", medium: "Medium risk", low: "Low risk", unclear
 const reduce = typeof matchMedia !== "undefined" && matchMedia("(prefers-reduced-motion:reduce)").matches;
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
+// Where the API lives. Empty = same site (Render, local dev). Set VITE_API_URL when the site is hosted
+// somewhere that can't run the server (e.g. Vercel) and the API is deployed elsewhere.
+const API = ((import.meta.env.VITE_API_URL as string | undefined) ?? "").replace(/\/$/, "");
+const NO_SERVER = "Can't reach the scan server. If this is the first scan in a while, wait a minute and try again.";
+
 async function api<T>(url: string, body: unknown): Promise<T> {
-  const r = await fetch(url, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
-  const j = await r.json().catch(() => ({}));
-  if (!r.ok) throw new Error(j.error ?? "Request failed");
+  let r: Response;
+  try { r = await fetch(API + url, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) }); }
+  catch { throw new Error(NO_SERVER); }
+  const j = await r.json().catch(() => null);
+  if (!r.ok) throw new Error(j?.error ?? NO_SERVER);
   return j as T;
 }
 async function shrink(f: File): Promise<string> {
@@ -75,7 +82,7 @@ export default function App({ dark, setDark, user, onSignOut }: { dark: boolean;
   const docRef = useRef<HTMLDivElement>(null);
   const fileRef = useRef<HTMLInputElement>(null);
 
-  useEffect(() => { fetch("/api/config").then((r) => r.json()).then((c) => setDemoMode(!!c.demo)).catch(() => {}); }, []);
+  useEffect(() => { fetch(API + "/api/config").then((r) => r.json()).then((c) => setDemoMode(!!c.demo)).catch(() => {}); }, []);
   useEffect(() => {
     if (phase !== "reveal" || !docRef.current) return;
     const d = docRef.current, H = d.scrollHeight || 1, total = reduce ? 0 : 1400;
