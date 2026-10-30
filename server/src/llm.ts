@@ -1,6 +1,6 @@
 // Defaults to Google Gemini (OpenAI-compatible endpoint). Set LLM_BASE_URL / LLM_MODEL to use another provider.
 const BASE = (process.env.LLM_BASE_URL || "https://generativelanguage.googleapis.com/v1beta/openai").replace(/\/+$/, "");
-const MODEL = process.env.LLM_MODEL || "gemini-2.5-flash";
+const MODEL = process.env.LLM_MODEL || "gemini-3.8-flash";
 
 export async function chatJSON<T>(system: string, user: string): Promise<T> {
   const r = await fetch(`${BASE}/chat/completions`, {
