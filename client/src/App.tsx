@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import "./styles.css";
+import type { User } from "./SignIn";
 
 type Passage = { id: string; title: string; text: string; source: string; key?: string };
 type Signal = { label: string; severity: "high" | "medium" | "low"; explanation: string; evidence: string[]; quotes: string[] };
@@ -60,8 +60,7 @@ function Ring({ v }: { v: Verdict }) {
   );
 }
 
-export default function App() {
-  const [dark, setDark] = useState(() => matchMedia("(prefers-color-scheme:dark)").matches);
+export default function App({ dark, setDark, user, onSignOut }: { dark: boolean; setDark: (d: boolean) => void; user: User; onSignOut: () => void }) {
   const [text, setText] = useState("");
   const [phase, setPhase] = useState<Phase>("idle");
   const [res, setRes] = useState<Verdict | null>(null);
@@ -76,7 +75,6 @@ export default function App() {
   const docRef = useRef<HTMLDivElement>(null);
   const fileRef = useRef<HTMLInputElement>(null);
 
-  useEffect(() => { document.documentElement.dataset.theme = dark ? "dark" : "light"; }, [dark]);
   useEffect(() => { fetch("/api/config").then((r) => r.json()).then((c) => setDemoMode(!!c.demo)).catch(() => {}); }, []);
   useEffect(() => {
     if (phase !== "reveal" || !docRef.current) return;
@@ -128,7 +126,11 @@ export default function App() {
     <div className="wrap">
       <nav>
         <div className="brand"><svg width="28" height="28" viewBox="0 0 28 28" aria-hidden="true"><path d="M14 2.5l9.5 3.7v7.4c0 5.7-4 10-9.5 12-5.5-2-9.5-6.3-9.5-12V6.2z" fill="none" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" /><path d="M9.5 14l3.2 3.2 5.8-6" fill="none" stroke="var(--a1)" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" /></svg>OfferCheck</div>
-        <button className="sw" role="switch" aria-checked={dark} aria-label="Dark mode" onClick={() => setDark(!dark)}><span className="knob">{dark ? "☾" : "☀"}</span></button>
+        <div className="who">
+          <span className="tiny" title={user.email}>Hi, {user.name}</span>
+          <button className="link" onClick={onSignOut}>Sign out</button>
+          <button className="sw" role="switch" aria-checked={dark} aria-label="Dark mode" onClick={() => setDark(!dark)}><span className="knob">{dark ? "☾" : "☀"}</span></button>
+        </div>
       </nav>
       <section className="hero">
         <h1>Is this offer <em>real</em>?</h1>
