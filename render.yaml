@@ -11,5 +11,7 @@ services:
         value: 20
       - key: LLM_API_KEY
         sync: false
+      - key: LLM_BASE_URL
+        value: https://generativelanguage.googleapis.com/v1beta/openai
       - key: LLM_MODEL
-        value: openai/gpt-4o-mini
+        value: gemini-2.5-flash

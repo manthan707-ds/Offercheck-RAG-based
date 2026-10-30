@@ -2,7 +2,7 @@
 
 Is this internship or job offer real? Paste a message (or upload a screenshot) and OfferCheck highlights the risky phrases, scores the risk, and links every signal to the evidence behind it. Built for students in India who keep getting "pay dues to unlock your LMS" style offers.
 
-**Stack:** React + TypeScript (Vite), Node.js + Express + TypeScript, zod, hybrid retrieval (BM25 + embeddings, fused with RRF), any OpenAI-compatible LLM (OpenRouter by default).
+**Stack:** React + TypeScript (Vite), Node.js + Express + TypeScript, zod, hybrid retrieval (BM25 + embeddings, fused with RRF), Google Gemini by default (any OpenAI-compatible LLM works).
 
 ## How it works
 1. **Extract** claims from the message with the LLM (screenshots are transcribed by a vision model first).
@@ -21,7 +21,7 @@ Without `LLM_API_KEY` the server falls back to built-in rules ("demo mode"), so 
 The Express server also serves the built React app, so a single web service is enough.
 1. Push this repo to GitHub.
 2. On Render choose **New > Blueprint**, select the repo. `render.yaml` sets everything up.
-3. Add the `LLM_API_KEY` environment variable (an OpenRouter key). Optional: `EMBED_MODEL` + `EMBED_BASE_URL` for dense retrieval.
+3. Add the `LLM_API_KEY` environment variable (a Gemini key from aistudio.google.com). Optional: `EMBED_MODEL` + `EMBED_BASE_URL` for dense retrieval.
 
 Any Node host works: build with `npm install --include=dev && npm run build`, start with `npm start`.
 

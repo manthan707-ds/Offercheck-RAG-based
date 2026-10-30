@@ -1,11 +1,13 @@
-const BASE = process.env.LLM_BASE_URL ?? "https://openrouter.ai/api/v1";
+// Defaults to Google Gemini (OpenAI-compatible endpoint). Set LLM_BASE_URL / LLM_MODEL to use another provider.
+const BASE = (process.env.LLM_BASE_URL || "https://generativelanguage.googleapis.com/v1beta/openai").replace(/\/+$/, "");
+const MODEL = process.env.LLM_MODEL || "gemini-2.5-flash";
 
 export async function chatJSON<T>(system: string, user: string): Promise<T> {
   const r = await fetch(`${BASE}/chat/completions`, {
     method: "POST",
     headers: { Authorization: `Bearer ${process.env.LLM_API_KEY}`, "Content-Type": "application/json" },
     body: JSON.stringify({
-      model: process.env.LLM_MODEL ?? "openai/gpt-4o-mini", temperature: 0,
+      model: MODEL, temperature: 0,
       response_format: { type: "json_object" },
       messages: [{ role: "system", content: system }, { role: "user", content: user }],
     }),
@@ -34,7 +36,7 @@ export async function visionText(dataUrl: string): Promise<string> {
     method: "POST",
     headers: { Authorization: `Bearer ${process.env.LLM_API_KEY}`, "Content-Type": "application/json" },
     body: JSON.stringify({
-      model: process.env.VISION_MODEL ?? process.env.LLM_MODEL ?? "openai/gpt-4o-mini", temperature: 0,
+      model: process.env.VISION_MODEL || MODEL, temperature: 0,
       response_format: { type: "json_object" },
       messages: [{ role: "user", content: [
         { type: "text", text: 'Transcribe all text in this screenshot of a job, internship or certificate message exactly as written. Reply as JSON: {"text":string}' },
