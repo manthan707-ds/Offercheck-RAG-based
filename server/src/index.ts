@@ -9,6 +9,9 @@ import { z } from "zod";
 import { analyze } from "./analyze";
 import { visionText } from "./llm";
 
+// Short, safe reason from the AI provider so failures are diagnosable from the UI.
+const why = (e: unknown) => String((e as Error)?.message ?? e).replace(/\s+/g, " ").slice(0, 280);
+
 const app = express();
 app.set("trust proxy", 1);
 app.use(cors(), express.json({ limit: "8mb" }));
@@ -23,7 +26,7 @@ app.post("/api/analyze", async (req, res) => {
   const p = Body.safeParse(req.body);
   if (!p.success) return void res.status(400).json({ error: p.error.issues[0].message });
   try { res.json(await analyze(p.data.message)); }
-  catch (e) { console.error(e); res.status(502).json({ error: "Analysis failed. Check your LLM key and model." }); }
+  catch (e) { console.error(e); res.status(502).json({ error: `Analysis failed. Check your LLM key and model. (${why(e)})` }); }
 });
 app.post("/api/extract", async (req, res) => {
   if (!process.env.LLM_API_KEY) return void res.status(503).json({ error: "Screenshot reading needs LLM_API_KEY with a vision-capable model." });
@@ -33,7 +36,7 @@ app.post("/api/extract", async (req, res) => {
     const text = (await visionText(p.data.image)).trim();
     if (text.length < 20) return void res.status(422).json({ error: "Couldn’t read enough text in that image. Try a clearer screenshot." });
     res.json({ text: text.slice(0, 4000) });
-  } catch (e) { console.error(e); res.status(502).json({ error: "Couldn’t read the screenshot. Check your model supports images." }); }
+  } catch (e) { console.error(e); res.status(502).json({ error: `Couldn’t read the screenshot. Check your model supports images. (${why(e)})` }); }
 });
 
 const dist = fileURLToPath(new URL("../../client/dist", import.meta.url));
