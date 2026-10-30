@@ -24,9 +24,18 @@ app.get("/api/health", (_q, r) => void r.json({ ok: true }));
 app.get("/api/config", (_q, r) => void r.json({ demo: !process.env.LLM_API_KEY }));
 
 // TEMPORARY diagnostics: open /api/diag to see how the AI service responds to 3 request styles. Remove when done.
-app.get("/api/diag", async (_q, res) => {
+app.get("/api/diag", async (q, res) => {
   const base = (process.env.LLM_BASE_URL || "https://generativelanguage.googleapis.com/v1beta/openai").replace(/\/+$/, "");
-  const model = process.env.LLM_MODEL || "gemini-3.8-flash";
+  const model = typeof q.query.model === "string" && q.query.model ? q.query.model : process.env.LLM_MODEL || "gemini-3.8-flash";
+  if (q.query.list) { // /api/diag?list=1 shows the models this key can use
+    try {
+      const r = await fetch(`${base}/models`, { headers: { Authorization: `Bearer ${process.env.LLM_API_KEY}` }, signal: AbortSignal.timeout(20_000) });
+      const t = await r.text();
+      let ids: string[] | string = t.replace(/\s+/g, " ").slice(0, 300);
+      try { ids = (JSON.parse(t).data as { id: string }[]).map((m) => m.id.replace(/^models\//, "")).filter((i) => /gemini/i.test(i)); } catch { /* keep raw text */ }
+      return void res.json({ status: r.status, models: ids });
+    } catch (e) { return void res.json({ error: why(e) }); }
+  }
   const tests: Record<string, Record<string, unknown>> = {
     plain: {},
     json_mode: { response_format: { type: "json_object" } },
