@@ -1,0 +1,134 @@
+[
+ {
+  "id": "p1",
+  "source": "OfferCheck pattern library",
+  "title": "Payment before joining",
+  "text": "Legitimate internships and jobs do not charge candidates for selection, registration, onboarding, LMS access, training kits or security deposits. A payment demand before joining is the strongest scam indicator.",
+  "tags": [
+   "fee",
+   "payment",
+   "deposit",
+   "registration"
+  ],
+  "key": "selection, registration, onboarding, LMS access"
+ },
+ {
+  "id": "p2",
+  "source": "OfferCheck pattern library",
+  "title": "LMS dues pattern",
+  "text": "A common pattern: the candidate is told they are selected, then asked to pay dues, an access fee or a refundable deposit to unlock an LMS or training portal. Promised refunds are rarely honoured.",
+  "tags": [
+   "lms",
+   "dues",
+   "access",
+   "refund",
+   "portal"
+  ],
+  "key": "dues, an access fee or a refundable deposit"
+ },
+ {
+  "id": "p3",
+  "source": "OfferCheck pattern library",
+  "title": "Artificial urgency",
+  "text": "Scam offers pressure candidates with short deadlines such as pay within 24 hours or the seat is cancelled.",
+  "tags": [
+   "urgency",
+   "deadline",
+   "hurry",
+   "24 hours"
+  ],
+  "key": "pay within 24 hours or the seat is cancelled"
+ },
+ {
+  "id": "p4",
+  "source": "OfferCheck pattern library",
+  "title": "Chat-app-only contact",
+  "text": "Offers that arrive only through WhatsApp or Telegram, with no corporate email, interview or assessment, are a red flag.",
+  "tags": [
+   "whatsapp",
+   "telegram",
+   "channel"
+  ],
+  "key": "WhatsApp or Telegram"
+ },
+ {
+  "id": "p5",
+  "source": "OfferCheck pattern library",
+  "title": "Free email domains",
+  "text": "Recruiters who write from free email domains such as gmail, outlook or yahoo while claiming to represent a registered company deserve extra verification.",
+  "tags": [
+   "email",
+   "domain",
+   "gmail",
+   "recruiter"
+  ],
+  "key": "gmail, outlook or yahoo"
+ },
+ {
+  "id": "p6",
+  "source": "OfferCheck pattern library",
+  "title": "No interview, high stipend",
+  "text": "Selection without any interview, test or resume review is a warning sign, especially with an unusually high stipend or guaranteed placement.",
+  "tags": [
+   "interview",
+   "stipend",
+   "guaranteed",
+   "selected"
+  ],
+  "key": "Selection without any interview"
+ },
+ {
+  "id": "p7",
+  "source": "OfferCheck pattern library",
+  "title": "Guaranteed certificates",
+  "text": "Guaranteed certificates and job-guarantee claims attached to paid courses are a red flag. Verify the issuer on its official website and check for verifiable certificate IDs or QR codes.",
+  "tags": [
+   "certificate",
+   "certification",
+   "guarantee",
+   "course",
+   "issuer"
+  ],
+  "key": "Guaranteed certificates and job-guarantee claims"
+ },
+ {
+  "id": "p8",
+  "source": "OfferCheck pattern library",
+  "title": "Verify the company",
+  "text": "Check the company in the official MCA company database, look at how old its website domain is, and confirm the recruiter on LinkedIn before sharing anything.",
+  "tags": [
+   "verify",
+   "company",
+   "mca",
+   "linkedin"
+  ],
+  "key": "official MCA company database"
+ },
+ {
+  "id": "p9",
+  "source": "OfferCheck pattern library",
+  "title": "What genuine offers look like",
+  "text": "Genuine offers usually name a hiring manager, come from a corporate email domain, describe the role clearly and never request payment at any stage.",
+  "tags": [
+   "genuine",
+   "legitimate",
+   "offer letter",
+   "interview"
+  ],
+  "key": "name a hiring manager"
+ },
+ {
+  "id": "p10",
+  "source": "OfferCheck pattern library",
+  "title": "Early document requests",
+  "text": "Requests for Aadhaar, PAN, bank details or OTPs before a formal offer letter is signed are a red flag. Share ID documents only after verifying the employer.",
+  "tags": [
+   "aadhaar",
+   "pan",
+   "bank",
+   "otp",
+   "documents"
+  ],
+  "key": "Aadhaar, PAN, bank details or OTPs"
+ }
+]

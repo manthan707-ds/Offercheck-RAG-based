@@ -1,0 +1,47 @@
+const BASE = process.env.LLM_BASE_URL ?? "https://openrouter.ai/api/v1";
+
+export async function chatJSON<T>(system: string, user: string): Promise<T> {
+  const r = await fetch(`${BASE}/chat/completions`, {
+    method: "POST",
+    headers: { Authorization: `Bearer ${process.env.LLM_API_KEY}`, "Content-Type": "application/json" },
+    body: JSON.stringify({
+      model: process.env.LLM_MODEL ?? "openai/gpt-4o-mini", temperature: 0,
+      response_format: { type: "json_object" },
+      messages: [{ role: "system", content: system }, { role: "user", content: user }],
+    }),
+  });
+  if (!r.ok) throw new Error(`LLM ${r.status}: ${await r.text()}`);
+  const j = (await r.json()) as { choices: { message: { content: string } }[] };
+  return JSON.parse(j.choices[0].message.content) as T;
+}
+
+/** Returns null when EMBED_MODEL is unset, so retrieval falls back to BM25 only. */
+export async function embed(texts: string[]): Promise<number[][] | null> {
+  if (!process.env.EMBED_MODEL) return null;
+  const r = await fetch(`${process.env.EMBED_BASE_URL || BASE}/embeddings`, {
+    method: "POST",
+    headers: { Authorization: `Bearer ${process.env.EMBED_API_KEY ?? process.env.LLM_API_KEY}`, "Content-Type": "application/json" },
+    body: JSON.stringify({ model: process.env.EMBED_MODEL, input: texts }),
+  });
+  if (!r.ok) throw new Error(`Embeddings ${r.status}`);
+  const j = (await r.json()) as { data: { embedding: number[] }[] };
+  return j.data.map((d) => d.embedding);
+}
+
+/** Reads text out of a screenshot with a vision-capable model. */
+export async function visionText(dataUrl: string): Promise<string> {
+  const r = await fetch(`${BASE}/chat/completions`, {
+    method: "POST",
+    headers: { Authorization: `Bearer ${process.env.LLM_API_KEY}`, "Content-Type": "application/json" },
+    body: JSON.stringify({
+      model: process.env.VISION_MODEL ?? process.env.LLM_MODEL ?? "openai/gpt-4o-mini", temperature: 0,
+      response_format: { type: "json_object" },
+      messages: [{ role: "user", content: [
+        { type: "text", text: 'Transcribe all text in this screenshot of a job, internship or certificate message exactly as written. Reply as JSON: {"text":string}' },
+        { type: "image_url", image_url: { url: dataUrl } }] }],
+    }),
+  });
+  if (!r.ok) throw new Error(`Vision ${r.status}: ${await r.text()}`);
+  const j = (await r.json()) as { choices: { message: { content: string } }[] };
+  return String((JSON.parse(j.choices[0].message.content) as { text?: string }).text ?? "");
+}
