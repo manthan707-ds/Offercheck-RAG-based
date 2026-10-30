@@ -22,7 +22,7 @@ const NO_SERVER = "Can't reach the scan server. If this is the first scan in a w
 
 async function api<T>(url: string, body: unknown): Promise<T> {
   let r: Response;
-  try { r = await fetch(API + url, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) }); }
+  try { r = await fetch(API + url, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body), signal: AbortSignal.timeout(200_000) }); }
   catch { throw new Error(NO_SERVER); }
   const j = await r.json().catch(() => null);
   if (!r.ok) throw new Error(j?.error ?? NO_SERVER);
