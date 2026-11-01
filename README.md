@@ -14,6 +14,7 @@ Paste a message or upload a screenshot. OfferCheck highlights the risky phrases,
 [Live demo](https://offercheck-rag-based.vercel.app) · [How it works](#-how-it-works) · [Quick start](#-quick-start) · [Deploy](#-deployment) · [Evaluation](#-evaluation)
 
 </div>
+
 ## 📸 Preview
 
 <div align="center">
@@ -34,6 +35,7 @@ Paste a message or upload a screenshot. OfferCheck highlights the risky phrases,
 ![Sign-in page](docs/screenshots/signin.png)
 
 </details>
+
 ---
 
 ## Why this exists
@@ -55,7 +57,7 @@ OfferCheck is a retrieval-augmented (RAG) fraud checker built for exactly this. 
 
 ## 🧠 How it works
 
-````
+```
  message / screenshot
           │
           ▼
@@ -79,7 +81,7 @@ OfferCheck is a retrieval-augmented (RAG) fraud checker built for exactly this. 
  └────────┬────────┘
           ▼
    risk score + highlighted, cited signals
-````
+```
 
 1. **Extract** claims from the message with the LLM.
 2. **Retrieve** matching passages from the knowledge base with hybrid search.
@@ -101,14 +103,14 @@ OfferCheck is a retrieval-augmented (RAG) fraud checker built for exactly this. 
 
 **Requirements:** Node.js 20 or newer.
 
-````bash
+```bash
 git clone https://github.com/manthan707-ds/Offercheck-RAG-based.git
 cd Offercheck-RAG-based
 
 cp .env.example server/.env     # add LLM_API_KEY (optional)
 npm install
 npm run dev
-````
+```
 
 | Service | URL |
 |---|---|
@@ -155,26 +157,26 @@ The Express server also serves the built React app, so a single free web service
 
 Any Node host works too:
 
-````bash
+```bash
 npm install --include=dev && npm run build
 npm start
-````
+```
 
 ### Option B: Frontend on Vercel, API on Render
 
 Deploy the API on Render as above, then deploy the frontend on Vercel with this build-time variable:
 
-````
+```
 VITE_API_URL=https://your-app.onrender.com
-````
+```
 
 > The Render free tier sleeps when idle, so the first request after a pause can take a while.
 
 ## 📊 Evaluation
 
-````bash
+```bash
 npm run eval
-````
+```
 
 Compares **LLM-only** against **RAG (hybrid retrieval + grounding guard)** on precision, recall, F1, and faithfulness, using `server/eval/dataset.json`.
 
@@ -229,9 +231,3 @@ Released under the [MIT License](LICENSE).
 Built to help students spot fake offers before they pay. If this helped you, consider giving it a ⭐
 
 </div>
-````
-````
-
-Copy only what's inside the box, without the outer four-backtick lines. Then on GitHub, open `README.md` and click the pencil icon. Select all the old text with Ctrl+A, paste this in, and commit to `main`.
-
-The Roadmap section is placeholder text I wrote, so edit or delete it before you commit.
