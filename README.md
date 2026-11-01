@@ -14,7 +14,26 @@ Paste a message or upload a screenshot. OfferCheck highlights the risky phrases,
 [Live demo](https://offercheck-rag-based.vercel.app) · [How it works](#-how-it-works) · [Quick start](#-quick-start) · [Deploy](#-deployment) · [Evaluation](#-evaluation)
 
 </div>
+## 📸 Preview
 
+<div align="center">
+
+![OfferCheck flagging a scam offer with a risk score of 87](docs/screenshots/result-high-risk.png)
+
+</div>
+
+| Cited evidence for every signal | A genuine offer scores low |
+|---|---|
+| ![Evidence cards linked to each risk signal](docs/screenshots/evidence.png) | ![Genuine interview invite with a risk score of 8](docs/screenshots/result-low-risk.png) |
+
+<details>
+<summary>More screenshots</summary>
+
+![Dark mode](docs/screenshots/dark-mode.png)
+
+![Sign-in page](docs/screenshots/signin.png)
+
+</details>
 ---
 
 ## Why this exists
