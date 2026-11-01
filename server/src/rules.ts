@@ -13,15 +13,15 @@ const SIG: Record<string, { w: number; l: string; e: string; c: string[] }> = {
   good: { w: -15, l: "Genuine offer patterns", e: "An interview process, a named hiring manager or an explicit no-fee statement.", c: ["p9", "p8"] },
 };
 const RULES: { k: string; re: RegExp; when?: (t: string, hasInterview: boolean) => boolean }[] = [
-  { k: "pay", re: /\b(?:registration fee|access fee|processing fee|security deposit|refundable deposit|dues)\b|(?<=\b(?:pay|dues|fee|deposit)\b[^.!?\n]{0,25})(?:rs\.?|₹|inr)\s?\d+(?:,\d+)*/ },
-  { k: "urgent", re: /\bwithin \d+ ?(?:hours?|hrs?)\b|\bseats? (?:closing|filling)(?: (?:in|within) \d+ ?hours?)?|\b(?:last chance|limited seats?|today only)\b/ },
-  { k: "chat", re: /\b(?:whatsapp|telegram)\s+only\b|\b(?:contact|reply|message|reach)\b[^.!?\n]{0,25}\b(?:whatsapp|telegram)\b(?:\s+only)?/ },
+  { k: "pay", re: /\b(?:registration|access|processing|joining|training|onboarding|activation)\s+fee\b|\b(?:security|refundable)\s+deposit\b|\bdues\b|\b(?:pay|paid|payment|fee|deposit|unlock).{0,40}(?:rs\.?|₹|inr)\s?\d[\d,]*|(?:rs\.?|₹|inr)\s?\d[\d,].{0,24}\b(?:fee|dues|deposit|to (?:join|unlock|activate))\b|\b(?:upi|gpay|google pay|phonepe|paytm)\b/ },
+  { k: "urgent", re: /\bwithin \d+ ?(?:hours?|hrs?)\b|\bseats? (?:closing|filling)(?: (?:in|within) \d+ ?hours?)?|\b(?:last chance|limited seats?|today only|hurry)\b/ },
+  { k: "chat", re: /\b(?:whatsapp|telegram)\s+only\b|\b(?:contact|reply|message|reach)\b[^.!?\n]{0,40}\b(?:whatsapp|telegram)\b|\bon\s+(?:whatsapp|telegram)\b/ },
   { k: "nointerview", re: /\bno interview\b|\bwithout (?:an )?interview\b/ },
-  { k: "nointerview", re: /\byou(?: are|’re|'re) selected\b/, when: (_t, i) => !i },
-  { k: "docs", re: /\b(?:aadhaar|aadhar|pan card|bank details|otp)\b/, when: (t) => /\b(?:send|share|submit|provide)\b/i.test(t) },
+  { k: "nointerview", re: /\b(?:you(?: are|’re|'re)|congratulations.{0,40}you(?: are|’re|'re)?)\s+selected\b|\bselected for (?:the )?(?:internship|intern role|job|position)\b/, when: (_t, i) => !i },
+  { k: "docs", re: /\b(?:aadhaar|aadhar|pan card|passport|bank details|otp|passbook)\b/, when: (t) => /\b(?:send|share|submit|provide|upload)\b/i.test(t) },
   { k: "email", re: /[\w.+-]+@(?:gmail|yahoo|outlook|hotmail)\.com/ },
-  { k: "guarantee", re: /\b100% (?:job )?guarantee\b|\bguaranteed (?:job|placement|certificate)s?\b|\bjob guarantee\b/ },
-  { k: "good", re: /\bno (?:fee|payment|charges?)\b[^.!?\n]*|\bhiring manager\b|\binterview\b/ },
+  { k: "guarantee", re: /\b100% (?:job )?guarantee\b|\bguaranteed (?:job|placement|certificate)s?\b|\bjob guarantee\b|\bunlock (?:your )?(?:lms|portal|certificate|access)\b/ },
+  { k: "good", re: /\bno (?:fee|payment|charges?)\b[^.!?\n]*|\bhiring manager\b|\bgoogle meet\b|\bzoom\b|\binterview\b/ },
 ];
 
 export function demo(t: string): Verdict {

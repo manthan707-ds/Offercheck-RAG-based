@@ -23,39 +23,6 @@ const Img = z.object({ image: z.string().regex(/^data:image\/(png|jpe?g|webp);ba
 app.get("/api/health", (_q, r) => void r.json({ ok: true }));
 app.get("/api/config", (_q, r) => void r.json({ demo: !process.env.LLM_API_KEY }));
 
-// TEMPORARY diagnostics: open /api/diag to see how the AI service responds to 3 request styles. Remove when done.
-app.get("/api/diag", async (q, res) => {
-  const base = (process.env.LLM_BASE_URL || "https://generativelanguage.googleapis.com/v1beta/openai").replace(/\/+$/, "");
-  const model = typeof q.query.model === "string" && q.query.model ? q.query.model : process.env.LLM_MODEL || "gemini-3.8-flash";
-  if (q.query.list) { // /api/diag?list=1 shows the models this key can use
-    try {
-      const r = await fetch(`${base}/models`, { headers: { Authorization: `Bearer ${process.env.LLM_API_KEY}` }, signal: AbortSignal.timeout(20_000) });
-      const t = await r.text();
-      let ids: string[] | string = t.replace(/\s+/g, " ").slice(0, 300);
-      try { ids = (JSON.parse(t).data as { id: string }[]).map((m) => m.id.replace(/^models\//, "")).filter((i) => /gemini/i.test(i)); } catch { /* keep raw text */ }
-      return void res.json({ status: r.status, models: ids });
-    } catch (e) { return void res.json({ error: why(e) }); }
-  }
-  const tests: Record<string, Record<string, unknown>> = {
-    plain: {},
-    json_mode: { response_format: { type: "json_object" } },
-    json_mode_low_thinking: { response_format: { type: "json_object" }, reasoning_effort: "low" },
-  };
-  const out: Record<string, unknown> = { model, base, hasKey: !!process.env.LLM_API_KEY };
-  for (const [name, extra] of Object.entries(tests)) {
-    const t0 = Date.now();
-    try {
-      const r = await fetch(`${base}/chat/completions`, {
-        method: "POST",
-        headers: { Authorization: `Bearer ${process.env.LLM_API_KEY}`, "Content-Type": "application/json" },
-        body: JSON.stringify({ model, temperature: 0, messages: [{ role: "user", content: 'Reply with JSON: {"ok":true}' }], ...extra }),
-        signal: AbortSignal.timeout(20_000),
-      });
-      out[name] = { ms: Date.now() - t0, status: r.status, body: (await r.text()).replace(/\s+/g, " ").slice(0, 200) };
-    } catch (e) { out[name] = { ms: Date.now() - t0, error: why(e) }; }
-  }
-  res.json(out);
-});
 app.post("/api/analyze", async (req, res) => {
   const p = Body.safeParse(req.body);
   if (!p.success) return void res.status(400).json({ error: p.error.issues[0].message });

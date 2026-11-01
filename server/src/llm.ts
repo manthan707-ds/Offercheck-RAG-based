@@ -30,6 +30,21 @@ async function post(label: string, body: unknown): Promise<Response> {
   throw new Error(`${last} (the AI service is busy; tried 3 times)`);
 }
 
+function textOf(j: { choices?: { message?: { content?: unknown } }[] }): string {
+  const c = j.choices?.[0]?.message?.content;
+  if (typeof c === "string") return c;
+  if (Array.isArray(c)) return c.map((p) => (typeof p === "string" ? p : (p as { text?: string }).text ?? "")).join("");
+  return "";
+}
+
+function parseJSON<T>(raw: string): T {
+  const t = raw.trim().replace(/^```(?:json)?\s*/i, "").replace(/\s*```$/i, "");
+  try { return JSON.parse(t) as T; } catch { /* fall through */ }
+  const i = t.indexOf("{"), j = t.lastIndexOf("}");
+  if (i >= 0 && j > i) return JSON.parse(t.slice(i, j + 1)) as T;
+  throw new Error("LLM did not return JSON");
+}
+
 export async function chatJSON<T>(system: string, user: string): Promise<T> {
   const r = await post("LLM", {
       model: MODEL, temperature: 0, ...think,
@@ -37,8 +52,7 @@ export async function chatJSON<T>(system: string, user: string): Promise<T> {
       messages: [{ role: "system", content: system }, { role: "user", content: user }],
     });
   if (!r.ok) throw new Error(`LLM ${r.status}: ${await r.text()}`);
-  const j = (await r.json()) as { choices: { message: { content: string } }[] };
-  return JSON.parse(j.choices[0].message.content) as T;
+  return parseJSON<T>(textOf(await r.json() as { choices?: { message?: { content?: unknown } }[] }));
 }
 
 /** Returns null when EMBED_MODEL is unset, so retrieval falls back to BM25 only. */
@@ -64,6 +78,5 @@ export async function visionText(dataUrl: string): Promise<string> {
         { type: "image_url", image_url: { url: dataUrl } }] }],
     });
   if (!r.ok) throw new Error(`Vision ${r.status}: ${await r.text()}`);
-  const j = (await r.json()) as { choices: { message: { content: string } }[] };
-  return String((JSON.parse(j.choices[0].message.content) as { text?: string }).text ?? "");
+  return String(parseJSON<{ text?: string }>(textOf(await r.json() as { choices?: { message?: { content?: unknown } }[] })).text ?? "");
 }

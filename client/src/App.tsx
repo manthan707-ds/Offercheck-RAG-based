@@ -82,7 +82,11 @@ export default function App({ dark, setDark, user, onSignOut }: { dark: boolean;
   const docRef = useRef<HTMLDivElement>(null);
   const fileRef = useRef<HTMLInputElement>(null);
 
-  useEffect(() => { fetch(API + "/api/config").then((r) => r.json()).then((c) => setDemoMode(!!c.demo)).catch(() => {}); }, []);
+  useEffect(() => {
+    fetch(API + "/api/config").then((r) => r.json()).then((c) => setDemoMode(!!c.demo)).catch(() => {
+      setErr(API ? NO_SERVER : "This site has no scan API. On Vercel set VITE_API_URL to your Render URL, then rebuild.");
+    });
+  }, []);
   useEffect(() => {
     if (phase !== "reveal" || !docRef.current) return;
     const d = docRef.current, H = d.scrollHeight || 1, total = reduce ? 0 : 1400;
