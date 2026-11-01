@@ -29,14 +29,22 @@ const cos = (a: number[], b: number[]) => {
 const rank = (s: number[]) =>
   s.map((v, i) => [v, i] as const).filter(([v]) => v > 0).sort((a, b) => b[0] - a[0]).map(([, i]) => i);
 
-let vecs: Promise<number[][] | null> | undefined;
+let vecs: number[][] | null | undefined;
 
 /** Hybrid search: BM25 + dense embeddings, fused with Reciprocal Rank Fusion. */
 export async function search(query: string, k = 5): Promise<Passage[]> {
-  vecs ??= embed(kb.map((p) => `${p.title}. ${p.text}`));
   const lists = [rank(bm25([...new Set(tok(query))]))];
-  const dv = await vecs;
-  if (dv) { const [qv] = (await embed([query]))!; lists.push(rank(dv.map((v) => cos(qv, v)))); }
+  if (vecs === undefined) {
+    try { vecs = await embed(kb.map((p) => `${p.title}. ${p.text}`)); }
+    catch { vecs = null; }
+  }
+  const dv = vecs;
+  if (dv) {
+    try {
+      const [qv] = (await embed([query]))!;
+      lists.push(rank(dv.map((v) => cos(qv, v))));
+    } catch { /* BM25 only */ }
+  }
   const fused = new Map<number, number>();
   lists.forEach((l) => l.forEach((i, r) => fused.set(i, (fused.get(i) ?? 0) + 1 / (60 + r))));
   return [...fused].sort((a, b) => b[1] - a[1]).slice(0, k).map(([i]) => kb[i]);

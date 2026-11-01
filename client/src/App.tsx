@@ -22,7 +22,7 @@ const NO_SERVER = "Can't reach the scan server. If this is the first scan in a w
 
 async function api<T>(url: string, body: unknown): Promise<T> {
   let r: Response;
-  try { r = await fetch(API + url, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body), signal: AbortSignal.timeout(200_000) }); }
+  try { r = await fetch(API + url, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body), signal: AbortSignal.timeout(25_000) }); }
   catch { throw new Error(NO_SERVER); }
   const j = await r.json().catch(() => null);
   if (!r.ok) throw new Error(j?.error ?? NO_SERVER);
@@ -97,11 +97,11 @@ export default function App({ dark, setDark, user, onSignOut }: { dark: boolean;
 
   async function scan(t: string) {
     if (busy || t.trim().length < 20) return;
-    setBusy(true); setErr(""); setRes(null); setRev(new Set()); setHot(null); setGlow(null); setPhase("wait"); setNote("Reading line by line");
+    setBusy(true); setErr(""); setRes(null); setRev(new Set()); setHot(null); setGlow(null); setPhase("wait"); setNote("Scanning the message");
     try {
-      const [v] = await Promise.all([api<Verdict>("/api/analyze", { message: t.trim() }), sleep(reduce ? 0 : 900)]);
+      const [v] = await Promise.all([api<Verdict>("/api/analyze", { message: t.trim() }), sleep(reduce ? 0 : 250)]);
       setRes(v); setBeamKey((k) => k + 1); setPhase("reveal");
-      await sleep(reduce ? 0 : 1700);
+      await sleep(reduce ? 0 : 500);
       setNote("Hover a signal to light up its phrases.");
     } catch (e) { setErr((e as Error).message); setPhase("idle"); setNote(""); }
     finally { setBusy(false); }

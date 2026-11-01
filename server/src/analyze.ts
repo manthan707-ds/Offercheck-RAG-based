@@ -3,8 +3,7 @@ import { search } from "./retrieval";
 import type { Risk, Signal, Verdict } from "./types";
 import { demo } from "./rules";
 
-const EXTRACT = `Extract facts from a job or internship offer message. Reply as JSON:
-{"company":string|null,"feeDemanded":string|null,"channel":string|null,"certificateIssuer":string|null,"notes":string[]}`;
+const BUDGET_MS = Math.max(4_000, Number(process.env.ANALYZE_MS) || 10_000);
 
 const verdictPrompt = (ids: string[]) => `You assess scam risk in an internship or job offer message for students in India.
 ${ids.length ? `Use ONLY the evidence passages provided. Every signal must cite passage ids from: ${ids.join(", ")}.` : "No evidence passages are available; use general knowledge and leave evidence as []."}
@@ -30,13 +29,16 @@ export async function analyze(message: string, opts: { retrieval?: boolean } = {
   if (!process.env.LLM_API_KEY) return rules;
   try {
     const useRetrieval = opts.retrieval ?? true;
-    const claims = await chatJSON<Record<string, unknown>>(EXTRACT, message);
-    const passages = useRetrieval ? await search(`${message}\n${JSON.stringify(claims)}`, 6) : [];
+    const timed = <T>(p: Promise<T>, ms: number) => Promise.race([
+      p,
+      new Promise<T>((_, rej) => setTimeout(() => rej(new Error("scan timed out")), ms)),
+    ]);
+    const passages = useRetrieval ? await search(message, 6) : [];
     const ids = passages.map((p) => p.id);
-    const raw = await chatJSON<{ risk: Risk; score: number; summary: string; signals: Signal[] }>(
+    const raw = await timed(chatJSON<{ risk: Risk; score: number; summary: string; signals: Signal[] }>(
       verdictPrompt(ids),
-      `Message:\n${message}\n\nExtracted:\n${JSON.stringify(claims)}\n\nEvidence:\n${passages.map((p) => `[${p.id}] ${p.title}: ${p.text}`).join("\n")}`,
-    );
+      `Message:\n${message}\n\nEvidence:\n${passages.map((p) => `[${p.id}] ${p.title}: ${p.text}`).join("\n")}`,
+    ), BUDGET_MS);
 
     const low = message.toLowerCase();
     let signals = (raw.signals ?? []).map((s) => ({
